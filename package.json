@@ -3,7 +3,7 @@
 	"displayName": "Create Current Directory",
 	"description": "create file / folder to current open file directory",
 	"publisher": "wh1tecat",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/wh1tecat-nya/create-current-directory.git"
