@@ -17,6 +17,9 @@
 3. Type relative file / folder path from current opening file.
 4. Done. 
 
+## and useful small functions!
++ change current file name from Command Palette!
+
 ## Contact
 mail: wh1tecat.sec@gmail.com
 github: @wh1tecat-nya

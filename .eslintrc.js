@@ -14,7 +14,9 @@ module.exports = {
 		"prettier/@typescript-eslint"
 	],
 	parserOptions: {
-		"sourceType": "module"
+		"warnOnUnsupportedTypeScriptVersion": false,
+		"sourceType": "module",
+		"ecmaVersion": 6
 	},
 	rules: {
 		"no-console": "warn",

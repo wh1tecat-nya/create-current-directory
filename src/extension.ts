@@ -4,7 +4,10 @@ import { isUnderProjectDirectoryPath } from "./fsUtils";
 
 export function activate(context: ExtensionContext) {
 	function getUriResources() {
+		// TODO: why does not get from args...
 		const activeEditor = window.activeTextEditor;
+
+		// TODO: error handling is not match for here(but where?)
 		if (!activeEditor) {
 			throw new Error("Not focused editor.");
 		}
@@ -16,12 +19,15 @@ export function activate(context: ExtensionContext) {
 			throw new Error("Create file can only workspace directory");
 		}
 
-		const currentFileDirectoryUri = path.dirname(activeEditor.document.uri.fsPath);
-		return { currentFileDirectoryUri, workspaceRootPath };
+		const currentFileUri = activeEditor.document.uri;
+		const currentFileDirectoryUri = path.dirname(currentFileUri.fsPath);
+		const currentFileName = path.basename(currentFileUri.fsPath);
+
+		return { currentFileUri, currentFileDirectoryUri, currentFileName, workspaceRootPath };
 	}
 
 	// Create a new file in the directory of current open file.
-	let createFileCommand = commands.registerCommand("extension.createFile", async () => {
+	const createFileCommand = commands.registerCommand("extension.createFile", async () => {
 		const { currentFileDirectoryUri, workspaceRootPath } = getUriResources();
 
 		const fileName = await window.showInputBox({
@@ -48,7 +54,7 @@ export function activate(context: ExtensionContext) {
 	});
 
 	// Create a new Folder in the directory of current open file.
-	let createFolderCommand = commands.registerCommand("extension.createFolder", async () => {
+	const createFolderCommand = commands.registerCommand("extension.createFolder", async () => {
 		const { currentFileDirectoryUri, workspaceRootPath } = getUriResources();
 
 		const folderName = await window.showInputBox({
@@ -67,7 +73,27 @@ export function activate(context: ExtensionContext) {
 		window.showInformationMessage(`Created Folder to: ${createFolderPath.fsPath}`);
 	});
 
-	context.subscriptions.push(createFileCommand, createFolderCommand);
+	const changeFileNameCommand = commands.registerCommand("extension.changeFileName", async () => {
+		const { currentFileUri, currentFileDirectoryUri, workspaceRootPath } = getUriResources();
+
+		const fileName = await window.showInputBox({
+			prompt: "Input new file name.",
+		});
+		if (!fileName) {
+			throw new Error("new File name is undefined.");
+		}
+
+		const newFileNamePath = Uri.file(path.resolve(currentFileDirectoryUri, fileName));
+		if (!isUnderProjectDirectoryPath(workspaceRootPath, newFileNamePath)) {
+			throw new Error("change file name can only under project directory.");
+		}
+
+		workspace.fs.rename(currentFileUri, newFileNamePath, { overwrite: false });
+
+		window.showInformationMessage(`change file name to: ${newFileNamePath.fsPath}`);
+	});
+
+	context.subscriptions.push(createFileCommand, createFolderCommand, changeFileNameCommand);
 }
 
 export function deactivate() {}
